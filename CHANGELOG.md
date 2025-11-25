@@ -8,7 +8,47 @@ All notable changes to this project will be documented in this file.
 
 ### In Progress
 - Testing automatic context loading
-- Planning additional plugins (decision-tracker, error-memory, test-suggester)
+
+---
+
+## 1.2.0 - 2025-11-24
+
+### Added
+- **`/log-decision`** - Log architecture decisions (ADR format)
+  - Records what, why, alternatives, trade-offs
+  - Stores in DECISIONS.md
+  - Also logs to CHANGELOG.md
+  - File: `commands/log-decision.md`
+
+- **`/show-decisions`** - Display logged decisions
+  - Summary view of all decisions
+  - Filter by keyword
+  - View full decision details
+  - File: `commands/show-decisions.md`
+
+- **`/log-error`** - Log errors and solutions
+  - Tracks error message, cause, solution
+  - Categorizes errors automatically
+  - Searchable by keywords
+  - File: `commands/log-error.md`
+
+- **`/search-errors`** - Search error log for solutions
+  - Fuzzy matching on error messages
+  - Auto-suggests when errors detected
+  - Never solve same problem twice!
+  - File: `commands/search-errors.md`
+
+- **`/suggest-tests`** - Analyze code for missing tests
+  - Detects untested files
+  - Prioritizes by criticality
+  - Generates test suggestions
+  - Can create test files
+  - File: `commands/suggest-tests.md`
+
+### Summary
+- **Decision Tracking**: Know WHY you made choices
+- **Error Memory**: Never debug the same thing twice
+- **Test Suggestions**: Ensure quality coverage
 
 ---
 
