@@ -1,7 +1,7 @@
 {
   "name": "context-keeper",
   "description": "Automatic project context management - maintains CONTEXT.md and CHANGELOG.md across conversations and compactions",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": {
     "name": "aaronb458"
   }

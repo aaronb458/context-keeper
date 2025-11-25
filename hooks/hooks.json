@@ -1,0 +1,17 @@
+{
+  "SessionStart": {
+    "enabled": true,
+    "description": "Auto-load CONTEXT.md at conversation start",
+    "command": "session-start.md"
+  },
+  "SessionEnd": {
+    "enabled": true,
+    "description": "Auto-update CHANGELOG.md at conversation end",
+    "command": "session-end.md"
+  },
+  "PreCompact": {
+    "enabled": true,
+    "description": "Save context before auto-compaction",
+    "command": "pre-compact.md"
+  }
+}
