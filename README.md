@@ -1,236 +1,434 @@
-# Minimal Claude Code Plugin
+# Context Keeper - Claude Code Plugin
 
-A minimal base setup for creating Claude Code plugins with an intelligent `/setup` command that automatically configures project linting and typechecking.
+**Automatic project context management that survives conversations and Claude's auto-compaction.**
 
-## Structure
+Never lose project context again. Context Keeper automatically maintains `CONTEXT.md` and `CHANGELOG.md` files that give Claude full project knowledge in every conversation - even after auto-compaction.
 
-```
-minimal-claude/
-├── .claude-plugin/
-│   └── plugin.json          # Plugin manifest (required)
-├── commands/                # Slash commands
-│   ├── setup-code-quality.md # Generate /fix command
-│   ├── setup-claude-md.md    # Generate CLAUDE.md guidelines
-│   ├── setup-commits.md      # Generate /commit command
-│   └── example.md
-├── agents/                  # Subagents
-│   └── example-agent.md
-├── skills/                  # Agent Skills
-│   └── SKILL.md
-└── hooks/                   # Event hooks
-    └── hooks.json
-```
-
-## Featured Command: `/setup-code-quality`
-
-The `/setup-code-quality` command intelligently detects your project type and configures automated code quality checks:
-
-1. **Detects Project Type**: Automatically identifies if you're using JavaScript/TypeScript, Python, Go, Rust, PHP, or Java
-2. **Checks Existing Tools**: Verifies which linting and typechecking tools are already installed
-3. **Installs Missing Tools**: Only installs what's needed (eslint, prettier, mypy, clippy, etc.)
-4. **Generates `/fix` Command**: Creates a custom `/fix` command tailored to your project that:
-   - Runs all your linting and typechecking tools
-   - Parses errors and groups them by domain (types, lint, formatting)
-   - Spawns parallel agents to fix all issues simultaneously
-
-### Usage
-
-```bash
-/setup-code-quality
-```
-
-After running setup, use the generated command:
-
-```bash
-/fix
-```
-
-This will automatically fix all linting and type errors in your project using parallel agents!
-
-## Featured Command: `/setup-claude-md`
-
-The `/setup-claude-md` command creates a minimal, non-bloated `CLAUDE.md` file with zero-tolerance code quality guidelines:
-
-1. **Detects Project Type**: Identifies your project and its tooling
-2. **Extracts Exact Commands**: Finds the actual lint/typecheck commands from your config
-3. **Generates CLAUDE.md**: Creates a minimal guidelines file (under 100 lines) that:
-   - Enforces running checks after EVERY file edit
-   - Implements zero-tolerance for errors/warnings
-   - Uses your project's specific commands
-   - Gets automatically injected into Claude's prompt
-
-### Usage
-
-```bash
-/setup-claude-md
-```
-
-This creates a `CLAUDE.md` file that tells Claude to automatically run your linting and typechecking commands after every edit, fixing all issues immediately.
-
-**Example generated CLAUDE.md** (for a TypeScript project):
-```markdown
-# Code Quality Guidelines
-
-**Zero-tolerance policy**: All code must pass linting and type checking.
-
-## After Every Edit
-
-After writing, editing, or updating ANY file, you MUST:
-
-1. Run these commands:
-   ```bash
-   npm run lint
-   npm run typecheck
-   ```
-
-2. Fix ALL errors and warnings immediately
-3. Re-run checks until zero errors/warnings remain
-```
-
-**Minimal, actionable, effective.**
-
-## Featured Command: `/setup-commits`
-
-The `/setup-commits` command creates a `/commit` command that enforces quality checks before committing:
-
-1. **Detects Project Type**: Identifies your project's linting/typechecking tools
-2. **Runs Quality Checks**: Executes all checks before allowing commits
-3. **Generates Smart Commit Messages**: AI-powered, human-readable commit messages
-4. **Auto-push**: Automatically pushes to remote after committing
-
-### Usage
-
-```bash
-/setup-commits
-```
-
-This creates a `/commit` command that:
-1. Runs `npm run lint` and `npm run typecheck` (or your project's equivalent)
-2. Only proceeds if all checks pass (zero tolerance)
-3. Analyzes your changes
-4. Generates a clear commit message like "Add user authentication with JWT"
-5. Commits and pushes automatically
-
-**Example workflow**:
-```bash
-# Make changes to your code
-# Then run:
-/commit
-
-# Claude will:
-# ✓ Run all quality checks
-# ✓ Generate commit message
-# ✓ Commit changes
-# ✓ Push to remote
-```
-
-## Plugin Components
-
-### Commands (`/commands`)
-Custom slash commands that users can invoke. Each command is a Markdown file with frontmatter:
-
-```markdown
----
-description: Command description
 ---
 
-Your command prompt here.
-```
+## The Problem
 
-### Agents (`/agents`)
-Specialized subagents that Claude can invoke for specific tasks. Define agents in Markdown files with frontmatter.
+When working with Claude Code:
+- ❌ Claude forgets project context between conversations
+- ❌ Auto-compaction removes conversation history
+- ❌ You have to re-explain your project every time
+- ❌ MCP servers consume 30k+ tokens just for tool definitions
+- ❌ No permanent record of decisions and patterns
 
-### Skills (`/skills`)
-Agent Skills that Claude can invoke autonomously based on context. Skills are defined in `SKILL.md` files.
+## The Solution
 
-### Hooks (`/hooks`)
-Event handlers that respond to Claude Code actions. Configure in `hooks.json`:
+Context Keeper creates and maintains two key files:
 
-- `PostToolUse` - After any tool is used
-- `UserPromptSubmit` - When user submits a prompt
-- `SessionStart` - When a session starts
+###  **CONTEXT.md** - Your Project's Brain
+- Auto-loads at the start of every conversation
+- Contains project overview, patterns, and conventions
+- ~2,500-3,000 tokens (vs. 31k for MCP servers!)
+- Claude immediately knows your project
 
-## Installation
+### **CHANGELOG.md** - Your Project's Memory
+- Auto-updated when you finish work
+- Tracks features, decisions, and changes
+- Survives auto-compaction
+- Historical record of your project
 
-### Option 1: Install from GitHub (Recommended)
+---
 
-Once you've pushed this to GitHub, users can install it directly:
+## Quick Start
+
+### 1. Install the Plugin
 
 ```bash
 # Add the marketplace
-/plugin marketplace add your-username/minimal-claude
+claude plugin marketplace add aaronb458/context-keeper
 
 # Install the plugin
-/plugin install minimal-claude@your-username
+claude plugin install context-keeper@aaronb458
 ```
 
-### Option 2: Local Testing
-
-For local development and testing:
+### 2. Initialize Context Tracking
 
 ```bash
-# Add local marketplace (from this directory)
-/plugin marketplace add /Users/kenkai/Documents/UnstableMind/minimal-claude
+cd your-project
+claude
 
-# Install the plugin
-/plugin install minimal-claude
+# In Claude Code:
+/setup-context
 ```
 
-### Option 3: Team Distribution
+That's it! Context tracking is now active.
 
-Add to your team's `.claude/settings.json`:
+### 3. See It in Action
+
+Exit and restart Claude in the same project:
+
+```bash
+exit
+claude
+```
+
+Ask Claude: "What is this project?"
+
+Claude will know immediately - no re-explaining needed!
+
+---
+
+## How It Works
+
+### Automatic Flow:
+
+```
+1. You enter project folder → claude
+
+2. CONTEXT.md auto-loads
+   ✅ Claude knows your project instantly
+   ✅ Understands patterns and conventions
+   ✅ Aware of current state
+
+3. You work together
+   🔍 Changes tracked silently in background
+   📝 Decisions detected automatically
+
+4. You exit conversation
+   ✅ CHANGELOG.md auto-updates with your work
+   ✅ CONTEXT.md updated if patterns changed
+   ✅ Session logged for reference
+
+5. Next conversation
+   ✅ Full context restored from files
+   ✅ Even after auto-compaction!
+```
+
+---
+
+## Commands
+
+### `/setup-context`
+Initialize context tracking for your project.
+
+**What it creates:**
+- `CONTEXT.md` - Project knowledge file
+- `CHANGELOG.md` - Change history
+- `.claude/context-config.json` - Configuration
+
+**Usage:**
+```bash
+/setup-context
+```
+
+### `/update-context`
+Manually update CONTEXT.md with new information.
+
+**Options:**
+1. Add a new decision or pattern
+2. Update current state
+3. Add new important files
+4. Update project overview
+5. Add notes for Claude
+6. Auto-analyze recent changes
+
+**Usage:**
+```bash
+/update-context
+```
+
+### `/show-context`
+Display current project context summary.
+
+**Shows:**
+- Project overview and tech stack
+- Current work in progress
+- Recent changes
+- Token usage stats
+- Auto-tracking status
+
+**Usage:**
+```bash
+/show-context
+```
+
+---
+
+## What Gets Tracked
+
+### CONTEXT.md Contains:
+
+**✅ Project Overview**
+- Name, purpose, tech stack
+- Project structure
+- Key architectural patterns
+
+**✅ Patterns & Conventions**
+- Naming conventions
+- Coding standards
+- Design patterns used
+
+**✅ Current State**
+- Completed features
+- Work in progress
+- Upcoming tasks
+
+**✅ Important Files**
+- Key source files
+- Configuration files
+- Documentation
+
+**✅ Notes for Claude**
+- Quality standards
+- Workflow preferences
+- Things to remember
+
+### CHANGELOG.md Contains:
+
+**✅ Historical Record**
+- Features added
+- Changes made
+- Bugs fixed
+- Decisions documented
+
+**✅ Dated Entries**
+- Recent changes (last 30 days auto-load)
+- Full history (archived after 90 days)
+
+---
+
+## Token Usage
+
+**Context Keeper:** ~3,000-4,000 tokens total
+- CONTEXT.md: ~2,500-3,000 tokens
+- CHANGELOG.md (30 days): ~500-1,000 tokens
+
+**vs. MCP Servers:** ~31,000+ tokens
+- Just for tool definitions!
+- No actual project knowledge
+
+**You save:** ~27,000 tokens = more room for your code!
+
+---
+
+## Configuration
+
+Edit `.claude/context-config.json` to customize:
 
 ```json
 {
-  "pluginMarketplaces": [
-    "your-username/minimal-claude"
-  ],
-  "plugins": [
-    "minimal-claude@your-username"
-  ]
+  "auto_mode": {
+    "enabled": true,              // Auto-load/update
+    "auto_load_context": true,    // Load CONTEXT.md on start
+    "auto_log_changes": true,     // Track changes during work
+    "auto_update_context": true,  // Update CONTEXT.md on exit
+    "pre_compact_save": true      // Save before compaction
+  },
+
+  "loading": {
+    "changelog_days": 30,         // Days of changelog to load
+    "max_context_tokens": 3000,   // Token limit for CONTEXT.md
+    "summary_mode": false         // Use condensed version
+  },
+
+  "triggers": {
+    "min_files_changed": 1,       // Min changes to log
+    "detect_decisions": true,     // Auto-detect decisions
+    "detect_patterns": true       // Auto-detect patterns
+  }
 }
 ```
 
-This will auto-install the plugin for all team members who trust the repository.
+---
 
-## Publishing Your Plugin
+## Examples
 
-### 1. Push to GitHub
+### Example CONTEXT.md
 
-```bash
-git add -A
-git commit -m "Initial commit: minimal-claude plugin with /setup command"
-git branch -M main
-git remote add origin https://github.com/your-username/minimal-claude.git
-git push -u origin main
+```markdown
+# Project Context: CustomerHub SaaS
+
+> Last Updated: 2025-11-24
+
+## Overview
+**Purpose:** B2B customer relationship management for small businesses
+**Tech Stack:** Next.js 14, TypeScript, PostgreSQL, Prisma, Tailwind CSS
+
+## Architecture
+- App Router with server components
+- JWT authentication with refresh tokens
+- RESTful API under /api/
+- PostgreSQL with Prisma ORM
+
+## Key Patterns
+**Authentication:** JWT tokens in httpOnly cookies
+**Data Fetching:** Server components for DB queries
+**API Format:** { success: boolean, data?: any, error?: string }
+
+## Current State
+✅ User authentication complete
+🚧 Customer management in progress
+📋 Deal pipeline upcoming
+
+## Notes for Claude
+- Always run type checks after TypeScript edits
+- Follow API response format in all endpoints
+- Update CONTEXT.md for architectural decisions
 ```
 
-### 2. Share with Others
+### Example CHANGELOG.md
 
-Users can now install your plugin with:
+```markdown
+# Changelog
 
-```bash
-/plugin marketplace add your-username/minimal-claude
-/plugin install minimal-claude@your-username
+## 2025-11-24
+
+### Added
+- User authentication system with JWT tokens
+  - Login/logout endpoints
+  - Protected route middleware
+  - Files: `lib/auth.ts`, `middleware/auth.ts`
+
+### Changed
+- Refactored API error handling
+  - Centralized error middleware
+  - File: `lib/errors.ts`
+
+### Decisions
+- **JWT vs Sessions:** Chose JWT for API-first architecture
+  - Better for mobile app integration
+  - Trade-off: More complex token refresh logic
 ```
 
-### 3. Update Plugin Version
+---
 
-When you make changes:
+## Benefits
 
-1. Update version in `.claude-plugin/plugin.json`
-2. Update version in `.claude-plugin/marketplace.json`
-3. Commit and push changes
-4. Users will receive update notifications
+### For You:
+- ✅ Never re-explain your project
+- ✅ Permanent record of decisions
+- ✅ Easy onboarding for team members
+- ✅ Track project evolution over time
+- ✅ Context survives compaction
 
-## Customization
+### For Claude:
+- ✅ Always has project context
+- ✅ Follows established patterns
+- ✅ Knows what's been done
+- ✅ Can reference past decisions
+- ✅ Understands your preferences
 
-1. Edit `.claude-plugin/plugin.json` to update metadata
-2. Add your custom commands in `commands/`
-3. Add your custom agents in `agents/`
-4. Add your skills in `skills/`
-5. Configure your hooks in `hooks/hooks.json`
+---
 
-## Environment Variables
+## Advanced Features
 
-Use `${CLAUDE_PLUGIN_ROOT}` in paths to ensure portability across installations.
+### Manual Context Loading
+```markdown
+<!-- In your prompt -->
+Please review the authentication code.
+Context from CONTEXT.md will be automatically loaded.
+```
+
+### Session Logs
+Track detailed work in `.claude/session-logs/`:
+```json
+{
+  "session_id": "2025-11-24-001",
+  "start": "2025-11-24T14:30:00Z",
+  "end": "2025-11-24T15:45:00Z",
+  "files_changed": ["lib/auth.ts", "middleware.ts"],
+  "summary": "Implemented JWT authentication system"
+}
+```
+
+### Auto-Pruning
+Old changelog entries (>90 days) automatically move to `CHANGELOG_ARCHIVE.md`:
+- Keeps main CHANGELOG lean
+- Archive searchable when needed
+- No data loss
+
+---
+
+## Installation
+
+### From GitHub
+
+```bash
+# Add marketplace
+claude plugin marketplace add aaronb458/context-keeper
+
+# Install plugin
+claude plugin install context-keeper@aaronb458
+```
+
+### Local Testing
+
+```bash
+# Clone the repo
+git clone https://github.com/aaronb458/context-keeper.git
+
+# Add local marketplace
+claude plugin marketplace add /path/to/context-keeper
+
+# Install
+claude plugin install context-keeper
+```
+
+---
+
+## Updating the Plugin
+
+When new versions are released:
+
+```bash
+# Check for updates
+claude plugin list
+
+# Update if available
+claude plugin update context-keeper
+```
+
+---
+
+## Troubleshooting
+
+### CONTEXT.md not loading?
+1. Check `.claude/context-config.json` exists
+2. Verify `auto_load_context: true`
+3. Restart Claude Code
+
+### Token limit warnings?
+1. Run `/show-context` to check token count
+2. Condense older sections in CONTEXT.md
+3. Enable `summary_mode: true` in config
+4. Move detailed info to separate docs
+
+### Changelog not updating?
+1. Check `auto_log_changes: true` in config
+2. Verify you made significant changes (min_files_changed)
+3. Check `.claude/session-logs/` for session data
+
+---
+
+## Contributing
+
+Found a bug? Have a feature request?
+
+**GitHub:** https://github.com/aaronb458/context-keeper
+**Issues:** https://github.com/aaronb458/context-keeper/issues
+
+---
+
+## License
+
+MIT License - See LICENSE file for details
+
+---
+
+## Credits
+
+Built with ❤️ by [@aaronb458](https://github.com/aaronb458)
+
+Based on the [minimal-claude](https://github.com/KenKaiii/minimal-claude) plugin framework by [@KenKaiii](https://github.com/KenKaiii)
+
+---
+
+**Never lose project context again. Install Context Keeper today!**
+
+```bash
+claude plugin install context-keeper@aaronb458
+```
