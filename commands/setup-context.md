@@ -222,31 +222,101 @@ Create `.claude/context-config.json`:
 }
 ```
 
-## Step 6: Create README Section
+## Step 6: Generate CLAUDE.md (CRITICAL - This enables all automation!)
 
-Add to the project's README.md (or create CONTEXT_README.md if no README):
+Create `CLAUDE.md` with automatic behavior instructions:
 
 ```markdown
-## Context Tracking
+# Project Instructions
 
-This project uses automatic context tracking to maintain project knowledge across Claude Code conversations.
+## Auto-Load Context
 
-### Files:
-- **CONTEXT.md** - Project overview, patterns, and conventions (auto-loaded)
-- **CHANGELOG.md** - Historical record of changes (auto-updated)
-- **.claude/context-config.json** - Configuration
+**IMPORTANT:** At the start of every conversation in this project, you MUST:
 
-### How It Works:
-1. **Conversation Start** - CONTEXT.md is automatically loaded, giving Claude full project knowledge
-2. **During Work** - Changes are tracked silently in the background
-3. **Conversation End** - CHANGELOG.md is automatically updated with your work
-4. **After Compaction** - Context persists because it's saved in files, not just conversation history
+1. Read `CONTEXT.md` to understand this project
+2. Read recent entries from `CHANGELOG.md` to know what's been done
 
-### Manual Commands:
-- `/setup-context` - Regenerate context files
-- `/update-context` - Manually update CONTEXT.md
-- `/show-context` - Display current context summary
+This gives you full project knowledge immediately.
+
+## Project: [Project Name]
+
+[Brief 1-2 sentence description]
+
+**See `CONTEXT.md` for:**
+- Complete project overview
+- Architecture and patterns
+- Conventions and standards
+- Current state
+
+**See `CHANGELOG.md` for:**
+- Recent work history
+- Changes made
+- Decisions documented
+
+---
+
+## Automatic Behaviors
+
+### 1. Auto-Detect Decisions
+When you hear decision-making language like:
+- "Let's go with..."
+- "I think we should use..."
+- "We decided to..."
+- "The better approach is..."
+
+**Automatically ask:** "Should I log this decision to DECISIONS.md?"
+
+If yes, log it with:
+- What was decided
+- Why (the reasoning)
+- Alternatives considered
+- Trade-offs accepted
+
+### 2. Auto-Detect Errors
+When you help fix an error:
+
+**Automatically ask:** "Error fixed! Should I log this to ERRORS.md for future reference?"
+
+If yes, log it with:
+- Error message
+- Cause
+- Solution
+- Files affected
+
+### 3. Auto-Suggest Tests
+When new functions or components are created:
+
+**Automatically ask:** "I notice you created [file]. Would you like me to suggest tests for it?"
+
+### 4. Auto-Update on Exit
+When the user says goodbye, exits, or ends the conversation:
+
+1. Summarize what was accomplished
+2. Ask: "Should I update CHANGELOG.md with this session's work?"
+3. If significant decisions were made, ask about logging them
+4. Update CONTEXT.md "Current State" if features were completed
+
+---
+
+## Key Files
+
+- `CONTEXT.md` - Full project knowledge (read at start)
+- `CHANGELOG.md` - Change history (update at end)
+- `DECISIONS.md` - Architecture decisions (auto-prompt to log)
+- `ERRORS.md` - Error solutions (auto-prompt to log)
+
+---
+
+## Before Ending Conversation
+
+When the user is about to exit:
+1. Summarize what was accomplished
+2. Offer to update CHANGELOG.md
+3. Note any decisions that should be recorded
+4. Suggest tests for new code if applicable
 ```
+
+This CLAUDE.md file is what makes everything automatic - Claude reads it at conversation start and follows the instructions throughout.
 
 ## Step 7: Summary
 
